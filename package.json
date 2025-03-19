@@ -1,6 +1,6 @@
 {
   "name": "allumni-support-api-wrapper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A provider-agnostic wrapper for support/helpdesk APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -44,4 +44,4 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.2"
   }
-} 
+}
