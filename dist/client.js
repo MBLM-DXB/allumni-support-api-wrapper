@@ -367,7 +367,9 @@ class Desk365Client {
             filters: filters
         };
         const response = await this.request('/tickets', 'GET', undefined, params);
-        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response);
+        const page = (options === null || options === void 0 ? void 0 : options.page) || 1;
+        const limit = (options === null || options === void 0 ? void 0 : options.limit) || 30;
+        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response, page, limit);
     }
     /**
      * Searches for tickets based on filter options
@@ -393,7 +395,9 @@ class Desk365Client {
             filters: Object.keys(filters).length > 0 ? JSON.stringify(filters) : undefined
         };
         const response = await this.request('/tickets', 'GET', undefined, params);
-        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response);
+        const page = (options === null || options === void 0 ? void 0 : options.page) || 1;
+        const limit = (options === null || options === void 0 ? void 0 : options.limit) || 30;
+        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response, page, limit);
     }
     /**
      * Gets the details of a specific ticket
@@ -770,7 +774,9 @@ class Desk365Client {
             filters: JSON.stringify(filters)
         };
         const response = await this.request('/tickets', 'GET', undefined, params);
-        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response);
+        const page = (options === null || options === void 0 ? void 0 : options.page) || 1;
+        const limit = (options === null || options === void 0 ? void 0 : options.limit) || 30;
+        return this.mapDeskPaginatedResponseToPaginatedTicketsResponse(response, page, limit);
     }
     /**
      * Assigns a ticket to a specific agent/admin
@@ -1032,16 +1038,18 @@ class Desk365Client {
     /**
      * Maps a Desk365 paginated response to our generic PaginatedTicketsResponse
      * @param deskResponse - The Desk365 paginated response
+     * @param page - The current page number
+     * @param limit - The number of items per page
      * @returns The mapped paginated response
      * @private
      */
-    mapDeskPaginatedResponseToPaginatedTicketsResponse(deskResponse) {
+    mapDeskPaginatedResponseToPaginatedTicketsResponse(deskResponse, page = 1, limit = 30) {
         return {
             tickets: (deskResponse.tickets || []).map(this.mapDeskTicketToTicket.bind(this)),
             total: deskResponse.count || 0,
-            page: 1, // Calculated from offset in the request
-            limit: 30, // Defaults to 30 in Desk365 API
-            totalPages: Math.ceil((deskResponse.count || 0) / 30)
+            page,
+            limit,
+            totalPages: Math.ceil((deskResponse.count || 0) / limit)
         };
     }
     /**

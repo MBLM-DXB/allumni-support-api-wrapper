@@ -195,6 +195,8 @@ export declare class Desk365Client implements SupportApiInterface {
     /**
      * Maps a Desk365 paginated response to our generic PaginatedTicketsResponse
      * @param deskResponse - The Desk365 paginated response
+     * @param page - The current page number
+     * @param limit - The number of items per page
      * @returns The mapped paginated response
      * @private
      */
