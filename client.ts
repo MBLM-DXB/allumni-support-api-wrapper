@@ -221,8 +221,14 @@ export class Desk365Client implements SupportApiInterface {
             console.error('📛 Response error details:', {
               status: axiosError.response.status,
               statusText: axiosError.response.statusText,
-              data: axiosError.response.data
+              data: axiosError.response.data,
             });
+
+            if (axiosError.response.data && typeof axiosError.response.data === 'object' && 'errors' in axiosError.response.data) {
+              console.error('📛 Response error details:', {
+                errors: axiosError.response.data.errors
+              });
+            }
           }
         }
         
@@ -414,7 +420,7 @@ export class Desk365Client implements SupportApiInterface {
     
     const params = {
       ...this.buildParams(options),
-      filters: JSON.stringify(filters)
+      filters: filters
     };
 
     const response = await this.request('/tickets', 'GET', undefined, params);
