@@ -170,7 +170,7 @@ export declare class Desk365Client implements SupportApiInterface {
      * @returns The camelCase Desk365Conversation
      * @private
      */
-    private mapDesk365ConversationToCamelCase;
+    private mapDeskConversationToConversation;
     /**
      * Maps a Desk365 conversation object (camelCase) to our generic TicketMessage interface
      * @param deskConversation - The Desk365 conversation object (camelCase)
@@ -192,13 +192,6 @@ export declare class Desk365Client implements SupportApiInterface {
      * @private
      */
     private mapDeskTicketToTicket;
-    /**
-     * Maps a Desk365 ticket to our generic TicketDetails interface
-     * @param deskTicket - The Desk365 ticket
-     * @returns The mapped ticket details
-     * @private
-     */
-    private mapDeskTicketToTicketDetails;
     /**
      * Maps a Desk365 message to our generic TicketMessage interface
      * @param deskMessage - The Desk365 message

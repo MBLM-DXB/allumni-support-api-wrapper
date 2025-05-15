@@ -395,10 +395,18 @@ class Desk365Client {
      * @returns The ticket details including conversation
      */
     async getTicketDetails(ticketId) {
+        // Fetch ticket details
         const response = await this.request('/tickets/details', 'GET', undefined, {
             ticket_number: ticketId
         });
-        return this.mapDeskTicketToTicketDetails(response);
+        // Fetch conversations
+        const conversation = await this.getTicketConversations(ticketId);
+        // Return ticket details with conversation filled
+        return {
+            ...this.mapDeskTicketToTicket(response),
+            conversation,
+            attachments: [] // You can implement attachment fetching if needed
+        };
     }
     /**
      * Responds to a ticket
@@ -920,7 +928,7 @@ class Desk365Client {
         const conversations = response.conversations || [];
         // First map to camelCase Desk365Conversation, then to TicketMessage
         return conversations
-            .map(this.mapDesk365ConversationToCamelCase)
+            .map(this.mapDeskConversationToConversation)
             .map(this.mapDeskConversationToTicketMessage.bind(this));
     }
     /**
@@ -929,7 +937,7 @@ class Desk365Client {
      * @returns The camelCase Desk365Conversation
      * @private
      */
-    mapDesk365ConversationToCamelCase(raw) {
+    mapDeskConversationToConversation(raw) {
         return {
             ticketNumber: raw.ticket_number,
             createdBy: raw.created_by,
@@ -1052,19 +1060,6 @@ class Desk365Client {
             assignedTo: deskTicket.assigned_to || deskTicket.assign_to,
             createdAt: deskTicket.created_on || new Date().toISOString(),
             updatedAt: deskTicket.updated_on || new Date().toISOString()
-        };
-    }
-    /**
-     * Maps a Desk365 ticket to our generic TicketDetails interface
-     * @param deskTicket - The Desk365 ticket
-     * @returns The mapped ticket details
-     * @private
-     */
-    mapDeskTicketToTicketDetails(deskTicket) {
-        return {
-            ...this.mapDeskTicketToTicket(deskTicket),
-            conversation: [], // Would need separate API call to get conversation history
-            attachments: [] // Would need separate API call to get attachments
         };
     }
     /**
