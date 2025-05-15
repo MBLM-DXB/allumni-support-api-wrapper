@@ -135,6 +135,7 @@ export interface SupportApiInterface {
     respondToTicket(request: TicketResponseRequest): Promise<TicketMessage>;
     closeTicket(ticketId: string): Promise<Ticket>;
     reopenTicket(ticketId: string): Promise<Ticket>;
+    getTicketConversations(ticketId: string): Promise<any>;
     listAssignedTickets(adminEmail: string, options?: TicketFilterOptions): Promise<PaginatedTicketsResponse>;
     assignTicket(ticketId: string, assignTo: string): Promise<Ticket>;
     escalateTicket(ticketId: string, priority: TicketPriority): Promise<Ticket>;

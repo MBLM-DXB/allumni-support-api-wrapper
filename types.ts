@@ -135,6 +135,7 @@ export interface PaginatedTicketsResponse {
   totalPages: number;
 }
 
+ 
 /**
  * Support API interface
  * Defines the methods that the support API wrapper must implement
@@ -148,6 +149,7 @@ export interface SupportApiInterface {
   respondToTicket(request: TicketResponseRequest): Promise<TicketMessage>;
   closeTicket(ticketId: string): Promise<Ticket>;
   reopenTicket(ticketId: string): Promise<Ticket>;
+  getTicketConversations(ticketId: string): Promise<any>;
   
   // Admin methods
   listAssignedTickets(adminEmail: string, options?: TicketFilterOptions): Promise<PaginatedTicketsResponse>;
