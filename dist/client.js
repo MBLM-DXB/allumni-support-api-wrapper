@@ -968,7 +968,7 @@ class Desk365Client {
         return {
             id: ((_a = deskConversation.ticketNumber) === null || _a === void 0 ? void 0 : _a.toString()) + '-' + (deskConversation.createdOn || ''),
             ticketId: (_b = deskConversation.ticketNumber) === null || _b === void 0 ? void 0 : _b.toString(),
-            message: deskConversation.bodyText || deskConversation.body || '',
+            message: deskConversation.body || '',
             sender: deskConversation.createdBy || '',
             isStaff: deskConversation.senderType === 'agent',
             createdAt: deskConversation.createdOn,
@@ -1042,7 +1042,6 @@ class Desk365Client {
                 updatedAt: new Date().toISOString()
             };
         }
-        console.log('MAPPING DESK TICKET TO TICKET >>>>', deskTicket);
         return {
             id: ((_a = deskTicket.ticket_number) === null || _a === void 0 ? void 0 : _a.toString()) || ((_b = deskTicket.id) === null || _b === void 0 ? void 0 : _b.toString()) || 'unknown',
             subject: deskTicket.subject || 'Unknown Subject',
