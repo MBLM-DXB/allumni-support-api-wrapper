@@ -1053,28 +1053,66 @@ export class Desk365Client implements SupportApiInterface {
     }) as any;
     // Normalize the Desk365 conversations to TicketMessage[]
     const conversations = response.conversations || [];
-    return conversations.map(this.mapDeskConversationToTicketMessage.bind(this));
+    // First map to camelCase Desk365Conversation, then to TicketMessage
+    return conversations
+      .map(this.mapDesk365ConversationToCamelCase)
+      .map(this.mapDeskConversationToTicketMessage.bind(this));
   }
 
   /**
-   * Maps a Desk365 conversation object to our generic TicketMessage interface
-   * @param deskConversation - The Desk365 conversation object
-   * @returns The mapped TicketMessage
+   * Maps a raw Desk365 conversation object (snake_case) to Desk365Conversation (camelCase)
+   * @param raw - The raw Desk365 conversation object
+   * @returns The camelCase Desk365Conversation
    * @private
    */
-  private mapDeskConversationToTicketMessage(deskConversation: any): TicketMessage {
+  private mapDesk365ConversationToCamelCase(raw: any): import('./types').Desk365Conversation {
     return {
-      id: deskConversation.ticket_number?.toString() + '-' + (deskConversation.created_on || ''),
-      ticketId: deskConversation.ticket_number?.toString(),
-      message: deskConversation.body_text || deskConversation.body || '',
-      sender: deskConversation.created_by || '',
-      isStaff: deskConversation.sender_type === 'agent',
-      createdAt: deskConversation.created_on,
-      attachments: (deskConversation.attachements || []).map((att: any) => ({
+      ticketNumber: raw.ticket_number,
+      createdBy: raw.created_by,
+      creatorName: raw.creator_name,
+      type: raw.type,
+      senderType: raw.sender_type,
+      publicNote: raw.public_note,
+      ccAddress: raw.cc_address,
+      bccAddress: raw.bcc_address,
+      toAddress: raw.to_address,
+      notifiedAgents: raw.notified_agents,
+      body: raw.body,
+      bodyText: raw.body_text,
+      attachmentsCount: raw.attachements_count,
+      attachments: (raw.attachements || []).map((att: any) => ({
         id: att.id,
         fileName: att.filename,
         fileSize: att.size,
         contentType: att.content_type,
+        url: att.url
+      })),
+      createdOn: raw.created_on,
+      isEmailDeliveribilityFailiure: raw.is_email_deliveribility_failiure,
+      emailBounceType: raw.email_bounce_type,
+      emailBouceStatus: raw.email_bouce_status
+    };
+  }
+
+  /**
+   * Maps a Desk365 conversation object (camelCase) to our generic TicketMessage interface
+   * @param deskConversation - The Desk365 conversation object (camelCase)
+   * @returns The mapped TicketMessage
+   * @private
+   */
+  private mapDeskConversationToTicketMessage(deskConversation: import('./types').Desk365Conversation): TicketMessage {
+    return {
+      id: deskConversation.ticketNumber?.toString() + '-' + (deskConversation.createdOn || ''),
+      ticketId: deskConversation.ticketNumber?.toString(),
+      message: deskConversation.bodyText || deskConversation.body || '',
+      sender: deskConversation.createdBy || '',
+      isStaff: deskConversation.senderType === 'agent',
+      createdAt: deskConversation.createdOn,
+      attachments: (deskConversation.attachments || []).map((att: import('./types').Desk365Attachment) => ({
+        id: att.id,
+        fileName: att.fileName,
+        fileSize: att.fileSize,
+        contentType: att.contentType,
         url: att.url
       }))
     };

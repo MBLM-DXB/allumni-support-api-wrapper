@@ -918,28 +918,65 @@ class Desk365Client {
         });
         // Normalize the Desk365 conversations to TicketMessage[]
         const conversations = response.conversations || [];
-        return conversations.map(this.mapDeskConversationToTicketMessage.bind(this));
+        // First map to camelCase Desk365Conversation, then to TicketMessage
+        return conversations
+            .map(this.mapDesk365ConversationToCamelCase)
+            .map(this.mapDeskConversationToTicketMessage.bind(this));
     }
     /**
-     * Maps a Desk365 conversation object to our generic TicketMessage interface
-     * @param deskConversation - The Desk365 conversation object
+     * Maps a raw Desk365 conversation object (snake_case) to Desk365Conversation (camelCase)
+     * @param raw - The raw Desk365 conversation object
+     * @returns The camelCase Desk365Conversation
+     * @private
+     */
+    mapDesk365ConversationToCamelCase(raw) {
+        return {
+            ticketNumber: raw.ticket_number,
+            createdBy: raw.created_by,
+            creatorName: raw.creator_name,
+            type: raw.type,
+            senderType: raw.sender_type,
+            publicNote: raw.public_note,
+            ccAddress: raw.cc_address,
+            bccAddress: raw.bcc_address,
+            toAddress: raw.to_address,
+            notifiedAgents: raw.notified_agents,
+            body: raw.body,
+            bodyText: raw.body_text,
+            attachmentsCount: raw.attachements_count,
+            attachments: (raw.attachements || []).map((att) => ({
+                id: att.id,
+                fileName: att.filename,
+                fileSize: att.size,
+                contentType: att.content_type,
+                url: att.url
+            })),
+            createdOn: raw.created_on,
+            isEmailDeliveribilityFailiure: raw.is_email_deliveribility_failiure,
+            emailBounceType: raw.email_bounce_type,
+            emailBouceStatus: raw.email_bouce_status
+        };
+    }
+    /**
+     * Maps a Desk365 conversation object (camelCase) to our generic TicketMessage interface
+     * @param deskConversation - The Desk365 conversation object (camelCase)
      * @returns The mapped TicketMessage
      * @private
      */
     mapDeskConversationToTicketMessage(deskConversation) {
         var _a, _b;
         return {
-            id: ((_a = deskConversation.ticket_number) === null || _a === void 0 ? void 0 : _a.toString()) + '-' + (deskConversation.created_on || ''),
-            ticketId: (_b = deskConversation.ticket_number) === null || _b === void 0 ? void 0 : _b.toString(),
-            message: deskConversation.body_text || deskConversation.body || '',
-            sender: deskConversation.created_by || '',
-            isStaff: deskConversation.sender_type === 'agent',
-            createdAt: deskConversation.created_on,
-            attachments: (deskConversation.attachements || []).map((att) => ({
+            id: ((_a = deskConversation.ticketNumber) === null || _a === void 0 ? void 0 : _a.toString()) + '-' + (deskConversation.createdOn || ''),
+            ticketId: (_b = deskConversation.ticketNumber) === null || _b === void 0 ? void 0 : _b.toString(),
+            message: deskConversation.bodyText || deskConversation.body || '',
+            sender: deskConversation.createdBy || '',
+            isStaff: deskConversation.senderType === 'agent',
+            createdAt: deskConversation.createdOn,
+            attachments: (deskConversation.attachments || []).map((att) => ({
                 id: att.id,
-                fileName: att.filename,
-                fileSize: att.size,
-                contentType: att.content_type,
+                fileName: att.fileName,
+                fileSize: att.fileSize,
+                contentType: att.contentType,
                 url: att.url
             }))
         };

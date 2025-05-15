@@ -127,33 +127,33 @@ export interface PaginatedTicketsResponse {
  * Raw Desk365 conversation object (API response)
  */
 export interface Desk365Conversation {
-    ticket_number: number | string;
-    created_by: string;
-    creator_name: string;
+    ticketNumber: number | string;
+    createdBy: string;
+    creatorName: string;
     type: string;
-    sender_type: string;
-    public_note: string | null;
-    cc_address: string | null;
-    bcc_address: string | null;
-    to_address: string | null;
-    notified_agents: string | null;
+    senderType: string;
+    publicNote: string | null;
+    ccAddress: string | null;
+    bccAddress: string | null;
+    toAddress: string | null;
+    notifiedAgents: string | null;
     body: string;
-    body_text: string;
-    attachements_count: number;
-    attachements: Desk365Attachment[];
-    created_on: string;
-    is_email_deliveribility_failiure: boolean;
-    email_bounce_type: string | null;
-    email_bouce_status: string | null;
+    bodyText: string;
+    attachmentsCount: number;
+    attachments: Desk365Attachment[];
+    createdOn: string;
+    isEmailDeliveribilityFailiure: boolean;
+    emailBounceType: string | null;
+    emailBouceStatus: string | null;
 }
 /**
  * Raw Desk365 attachment object (API response)
  */
 export interface Desk365Attachment {
     id: string;
-    filename: string;
-    size: number;
-    content_type: string;
+    fileName: string;
+    fileSize: number;
+    contentType: string;
     url: string;
 }
 /**

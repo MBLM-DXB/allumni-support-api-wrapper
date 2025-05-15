@@ -165,8 +165,15 @@ export declare class Desk365Client implements SupportApiInterface {
      */
     getTicketConversations(ticketId: string): Promise<TicketMessage[]>;
     /**
-     * Maps a Desk365 conversation object to our generic TicketMessage interface
-     * @param deskConversation - The Desk365 conversation object
+     * Maps a raw Desk365 conversation object (snake_case) to Desk365Conversation (camelCase)
+     * @param raw - The raw Desk365 conversation object
+     * @returns The camelCase Desk365Conversation
+     * @private
+     */
+    private mapDesk365ConversationToCamelCase;
+    /**
+     * Maps a Desk365 conversation object (camelCase) to our generic TicketMessage interface
+     * @param deskConversation - The Desk365 conversation object (camelCase)
      * @returns The mapped TicketMessage
      * @private
      */
