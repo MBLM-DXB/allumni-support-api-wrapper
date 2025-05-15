@@ -79,6 +79,7 @@ export interface CreateTicketRequest {
   priority?: TicketPriority;
   userEmail: string;
   attachments?: File[];
+  customFields?: Record<string, string>;
 }
 
 /**

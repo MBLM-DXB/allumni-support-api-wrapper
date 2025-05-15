@@ -251,88 +251,71 @@ export class Desk365Client implements SupportApiInterface {
    * @returns The created ticket
    */
   async createTicket(request: CreateTicketRequest): Promise<Ticket> {
-    // Map our generic request to Desk365 specific format
-    const desk365Request = {
+    const url = `${this.baseUrl}/v3/tickets/create_with_attachment`;
+
+    // Build the ticket object as per the API
+    const ticketObject: any = {
+      email: request.userEmail,
       subject: request.subject,
       description: request.description,
-      priority: this.mapPriorityToDesk365Priority(request.priority) || 5, // Medium = 5 in Desk365
-      contact_email: request.userEmail,
-      email: request.userEmail, // Add email field which appears to be required
-      // Handle attachments if needed
+      status: 'open',
+      priority: this.mapPriorityToDesk365Priority(request.priority) || 5,
+      type: 'Question',
+      group: 'Development',
+      category: 'allumni',
+      sub_category: 'General',
+      custom_fields: request.customFields || {},
     };
 
+    // Create FormData for multipart/form-data
+    const formData = new FormData();
+    formData.append('ticket_object', JSON.stringify(ticketObject));
+
+    // Attach files if provided
+    if (request.attachments && request.attachments.length > 0) {
+      for (const file of request.attachments) {
+        formData.append('files', file);
+      }
+    }
+
+    if (this.verbose) {
+      console.log('Making POST request to /v3/tickets/create_with_attachment');
+      console.log('FormData contains:', {
+        ticket_object: ticketObject,
+        files: request.attachments?.map(f => (typeof f === 'string' ? f : f.name))
+      });
+    } else {
+      console.log(`📤 POST /v3/tickets/create_with_attachment (${request.attachments?.length || 0} file(s))`);
+    }
+
     try {
-      // Use the tickets endpoint with GET method (since POST isn't supported)
-      // Add query parameter for creating a ticket
-      const params: Record<string, any> = {
-        action: 'create',
-        ...desk365Request
-      };
-      
+      // Use axios directly for this request due to FormData handling
+      const response = await axios.post(url, formData, {
+        headers: {
+          ...this.headers,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
       if (this.verbose) {
-        console.log(`Making GET request to /v3/tickets with create action`);
-        console.log('Request parameters:', params);
+        console.log(`📥 Response status: ${response.status}`);
+        console.log('Response data:', response.data);
       } else {
-        console.log(`📤 GET /v3/tickets (create action)`);
+        console.log(`📥 Response: ${response.status} ${response.statusText}`);
       }
-      
-      // Make request using GET method with query parameters
-      const response = await this.request('/tickets', 'GET', undefined, params);
-      
-      // Log response for debugging
-      console.log('Create ticket response:', JSON.stringify(response, null, 2));
-      
-      if (this.verbose) {
-        console.log('Response data:', response);
-      }
-      
-      // After creating the ticket, list tickets to get the newly created one
-      const tickets = await this.listUserTickets(request.userEmail, { limit: 30 });
-      
-      if (tickets.tickets.length > 0) {
-        // Assume the most recently created ticket is the first one
-        const createdTicket = tickets.tickets[0];
-        console.log(`Found ticket with ID: ${createdTicket.id}`);
-        return createdTicket;
-      }
-      
-      // If no tickets found, create a default ticket object with what we know
-      return {
-        id: 'unknown',
-        subject: request.subject,
-        description: request.description,
-        status: 'OPEN' as any,
-        priority: request.priority || TicketPriority.MEDIUM,
-        userEmail: request.userEmail,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-    } catch (error: unknown) {
-      // Concise error logging
+
+      return this.mapDeskTicketToTicket(response.data);
+    } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        const status = error.response.status;
-        const statusText = error.response.statusText;
-        const allowedMethods = error.response.headers?.allow;
-        
-        console.error(`Create ticket error: HTTP ${status} ${statusText}`);
-        
-        if (allowedMethods) {
-          console.error(`Allowed methods: ${allowedMethods}`);
+        console.error(`📛 Error: ${error.response.status} ${error.response.statusText}`);
+        if (error.response.data) {
+          console.error('Response:', typeof error.response.data === 'object' ? 
+            JSON.stringify(error.response.data) : 
+            error.response.data);
         }
-        
-        // Only log detailed data in verbose mode
-        if (this.verbose && error.response.data) {
-          console.error('Response data:', 
-            typeof error.response.data === 'object' 
-              ? JSON.stringify(error.response.data, null, 2) 
-              : error.response.data.substring(0, 200)
-          );
-        }
-      } else {
-        // Handle non-Axios errors
-        console.error('Create ticket error:', error instanceof Error ? error.message : String(error));
+        throw new Error(`Desk365 API Error: ${error.response.statusText || error.message}`);
       }
-      
+      console.error('Error creating ticket with attachments:', error);
       throw error;
     }
   }
