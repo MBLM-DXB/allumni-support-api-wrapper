@@ -1104,7 +1104,7 @@ export class Desk365Client implements SupportApiInterface {
     return {
       id: deskConversation.ticketNumber?.toString() + '-' + (deskConversation.createdOn || ''),
       ticketId: deskConversation.ticketNumber?.toString(),
-      message: deskConversation.bodyText || deskConversation.body || '',
+      message: deskConversation.body || '',
       sender: deskConversation.createdBy || '',
       isStaff: deskConversation.senderType === 'agent',
       createdAt: deskConversation.createdOn,
@@ -1184,9 +1184,6 @@ export class Desk365Client implements SupportApiInterface {
         updatedAt: new Date().toISOString()
       };
     }
-    
-
-    console.log('MAPPING DESK TICKET TO TICKET >>>>', deskTicket);
 
     return {
       id: deskTicket.ticket_number?.toString() || deskTicket.id?.toString() || 'unknown',
