@@ -135,7 +135,54 @@ export interface PaginatedTicketsResponse {
   totalPages: number;
 }
 
- 
+/**
+ * Raw Desk365 conversation object (API response)
+ */
+export interface Desk365Conversation {
+  ticket_number: number | string;
+  created_by: string;
+  creator_name: string;
+  type: string;
+  sender_type: string;
+  public_note: string | null;
+  cc_address: string | null;
+  bcc_address: string | null;
+  to_address: string | null;
+  notified_agents: string | null;
+  body: string;
+  body_text: string;
+  attachements_count: number;
+  attachements: Desk365Attachment[];
+  created_on: string;
+  is_email_deliveribility_failiure: boolean;
+  email_bounce_type: string | null;
+  email_bouce_status: string | null;
+}
+
+/**
+ * Raw Desk365 attachment object (API response)
+ */
+export interface Desk365Attachment {
+  id: string;
+  filename: string;
+  size: number;
+  content_type: string;
+  url: string;
+}
+
+/**
+ * Normalized response for ticket conversations
+ */
+export interface TicketConversationResponse {
+  count: number;
+  agentReplyCount: number;
+  contactReplyCount: number;
+  publicNoteCount: number;
+  privateNoteCount: number;
+  forwardMessageCount: number;
+  messages: TicketMessage[];
+}
+
 /**
  * Support API interface
  * Defines the methods that the support API wrapper must implement
@@ -149,7 +196,7 @@ export interface SupportApiInterface {
   respondToTicket(request: TicketResponseRequest): Promise<TicketMessage>;
   closeTicket(ticketId: string): Promise<Ticket>;
   reopenTicket(ticketId: string): Promise<Ticket>;
-  getTicketConversations(ticketId: string): Promise<any>;
+  getTicketConversations(ticketId: string): Promise<TicketMessage[]>;
   
   // Admin methods
   listAssignedTickets(adminEmail: string, options?: TicketFilterOptions): Promise<PaginatedTicketsResponse>;

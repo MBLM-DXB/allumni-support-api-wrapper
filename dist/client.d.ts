@@ -163,7 +163,14 @@ export declare class Desk365Client implements SupportApiInterface {
      * @param ticketId - The ID of the ticket
      * @returns The list of conversations/messages for the ticket
      */
-    getTicketConversations(ticketId: string): Promise<any>;
+    getTicketConversations(ticketId: string): Promise<TicketMessage[]>;
+    /**
+     * Maps a Desk365 conversation object to our generic TicketMessage interface
+     * @param deskConversation - The Desk365 conversation object
+     * @returns The mapped TicketMessage
+     * @private
+     */
+    private mapDeskConversationToTicketMessage;
     /**
      * Builds query parameters for filtering tickets
      * @param options - Filter options

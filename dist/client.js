@@ -916,7 +916,33 @@ class Desk365Client {
         const response = await this.request('/tickets/conversations', 'GET', undefined, {
             ticket_number: ticketId
         });
-        return response;
+        // Normalize the Desk365 conversations to TicketMessage[]
+        const conversations = response.conversations || [];
+        return conversations.map(this.mapDeskConversationToTicketMessage.bind(this));
+    }
+    /**
+     * Maps a Desk365 conversation object to our generic TicketMessage interface
+     * @param deskConversation - The Desk365 conversation object
+     * @returns The mapped TicketMessage
+     * @private
+     */
+    mapDeskConversationToTicketMessage(deskConversation) {
+        var _a, _b;
+        return {
+            id: ((_a = deskConversation.ticket_number) === null || _a === void 0 ? void 0 : _a.toString()) + '-' + (deskConversation.created_on || ''),
+            ticketId: (_b = deskConversation.ticket_number) === null || _b === void 0 ? void 0 : _b.toString(),
+            message: deskConversation.body_text || deskConversation.body || '',
+            sender: deskConversation.created_by || '',
+            isStaff: deskConversation.sender_type === 'agent',
+            createdAt: deskConversation.created_on,
+            attachments: (deskConversation.attachements || []).map((att) => ({
+                id: att.id,
+                fileName: att.filename,
+                fileSize: att.size,
+                contentType: att.content_type,
+                url: att.url
+            }))
+        };
     }
     /**
      * Builds query parameters for filtering tickets

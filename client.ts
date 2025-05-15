@@ -1047,11 +1047,37 @@ export class Desk365Client implements SupportApiInterface {
    * @param ticketId - The ID of the ticket
    * @returns The list of conversations/messages for the ticket
    */
-  async getTicketConversations(ticketId: string): Promise<any> {
+  async getTicketConversations(ticketId: string): Promise<TicketMessage[]> {
     const response = await this.request('/tickets/conversations', 'GET', undefined, {
       ticket_number: ticketId
-    });
-    return response;
+    }) as any;
+    // Normalize the Desk365 conversations to TicketMessage[]
+    const conversations = response.conversations || [];
+    return conversations.map(this.mapDeskConversationToTicketMessage.bind(this));
+  }
+
+  /**
+   * Maps a Desk365 conversation object to our generic TicketMessage interface
+   * @param deskConversation - The Desk365 conversation object
+   * @returns The mapped TicketMessage
+   * @private
+   */
+  private mapDeskConversationToTicketMessage(deskConversation: any): TicketMessage {
+    return {
+      id: deskConversation.ticket_number?.toString() + '-' + (deskConversation.created_on || ''),
+      ticketId: deskConversation.ticket_number?.toString(),
+      message: deskConversation.body_text || deskConversation.body || '',
+      sender: deskConversation.created_by || '',
+      isStaff: deskConversation.sender_type === 'agent',
+      createdAt: deskConversation.created_on,
+      attachments: (deskConversation.attachements || []).map((att: any) => ({
+        id: att.id,
+        fileName: att.filename,
+        fileSize: att.size,
+        contentType: att.content_type,
+        url: att.url
+      }))
+    };
   }
 
   /**
