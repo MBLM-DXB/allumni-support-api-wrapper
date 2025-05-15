@@ -907,6 +907,18 @@ class Desk365Client {
         }
     }
     /**
+     * Retrieves all conversations for a specific ticket
+     * Makes a GET request to /v3/tickets/conversations with the ticket_number as a parameter
+     * @param ticketId - The ID of the ticket
+     * @returns The list of conversations/messages for the ticket
+     */
+    async getTicketConversations(ticketId) {
+        const response = await this.request('/tickets/conversations', 'GET', undefined, {
+            ticket_number: ticketId
+        });
+        return response;
+    }
+    /**
      * Builds query parameters for filtering tickets
      * @param options - Filter options
      * @returns The query parameters
@@ -967,6 +979,7 @@ class Desk365Client {
                 updatedAt: new Date().toISOString()
             };
         }
+        console.log('MAPPING DESK TICKET TO TICKET >>>>', deskTicket);
         return {
             id: ((_a = deskTicket.ticket_number) === null || _a === void 0 ? void 0 : _a.toString()) || ((_b = deskTicket.id) === null || _b === void 0 ? void 0 : _b.toString()) || 'unknown',
             subject: deskTicket.subject || 'Unknown Subject',

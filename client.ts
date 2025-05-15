@@ -1042,6 +1042,19 @@ export class Desk365Client implements SupportApiInterface {
   }
 
   /**
+   * Retrieves all conversations for a specific ticket
+   * Makes a GET request to /v3/tickets/conversations with the ticket_number as a parameter
+   * @param ticketId - The ID of the ticket
+   * @returns The list of conversations/messages for the ticket
+   */
+  async getTicketConversations(ticketId: string): Promise<any> {
+    const response = await this.request('/tickets/conversations', 'GET', undefined, {
+      ticket_number: ticketId
+    });
+    return response;
+  }
+
+  /**
    * Builds query parameters for filtering tickets
    * @param options - Filter options
    * @returns The query parameters
@@ -1108,6 +1121,9 @@ export class Desk365Client implements SupportApiInterface {
       };
     }
     
+
+    console.log('MAPPING DESK TICKET TO TICKET >>>>', deskTicket);
+
     return {
       id: deskTicket.ticket_number?.toString() || deskTicket.id?.toString() || 'unknown',
       subject: deskTicket.subject || 'Unknown Subject',
