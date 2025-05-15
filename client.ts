@@ -453,11 +453,18 @@ export class Desk365Client implements SupportApiInterface {
    * @returns The ticket details including conversation
    */
   async getTicketDetails(ticketId: string): Promise<TicketDetails> {
+    // Fetch ticket details
     const response = await this.request('/tickets/details', 'GET', undefined, {
       ticket_number: ticketId
     });
-    
-    return this.mapDeskTicketToTicketDetails(response);
+    // Fetch conversations
+    const conversation = await this.getTicketConversations(ticketId);
+    // Return ticket details with conversation filled
+    return {
+      ...this.mapDeskTicketToTicket(response),
+      conversation,
+      attachments: [] // You can implement attachment fetching if needed
+    };
   }
 
   /**
@@ -1055,7 +1062,7 @@ export class Desk365Client implements SupportApiInterface {
     const conversations = response.conversations || [];
     // First map to camelCase Desk365Conversation, then to TicketMessage
     return conversations
-      .map(this.mapDesk365ConversationToCamelCase)
+      .map(this.mapDeskConversationToConversation)
       .map(this.mapDeskConversationToTicketMessage.bind(this));
   }
 
@@ -1065,7 +1072,7 @@ export class Desk365Client implements SupportApiInterface {
    * @returns The camelCase Desk365Conversation
    * @private
    */
-  private mapDesk365ConversationToCamelCase(raw: any): import('./types').Desk365Conversation {
+  private mapDeskConversationToConversation(raw: any): import('./types').Desk365Conversation {
     return {
       ticketNumber: raw.ticket_number,
       createdBy: raw.created_by,
@@ -1195,20 +1202,6 @@ export class Desk365Client implements SupportApiInterface {
       assignedTo: deskTicket.assigned_to || deskTicket.assign_to,
       createdAt: deskTicket.created_on || new Date().toISOString(),
       updatedAt: deskTicket.updated_on || new Date().toISOString()
-    };
-  }
-
-  /**
-   * Maps a Desk365 ticket to our generic TicketDetails interface
-   * @param deskTicket - The Desk365 ticket
-   * @returns The mapped ticket details
-   * @private
-   */
-  private mapDeskTicketToTicketDetails(deskTicket: any): TicketDetails {
-    return {
-      ...this.mapDeskTicketToTicket(deskTicket),
-      conversation: [], // Would need separate API call to get conversation history
-      attachments: [] // Would need separate API call to get attachments
     };
   }
 
