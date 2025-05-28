@@ -134,12 +134,16 @@ class Desk365Client {
         }
         // Build URL
         const url = `${this.baseUrl}${endpoint}`;
+        const safeParams = { ...params };
+        if (safeParams.filters && typeof safeParams.filters === 'object') {
+            safeParams.filters = JSON.stringify(safeParams.filters);
+        }
         // Prepare request options
         const config = {
             method,
             url,
             headers: this.headers,
-            params,
+            params: safeParams,
             paramsSerializer: (params) => qs_1.default.stringify(params, { arrayFormat: 'brackets' })
         };
         // Add data for non-GET requests

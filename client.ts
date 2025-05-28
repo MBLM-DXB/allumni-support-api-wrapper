@@ -165,13 +165,17 @@ export class Desk365Client implements SupportApiInterface {
     
     // Build URL
     const url = `${this.baseUrl}${endpoint}`;
+    const safeParams = { ...params };
+    if (safeParams.filters && typeof safeParams.filters === 'object') {
+      safeParams.filters = JSON.stringify(safeParams.filters);
+    }
 
     // Prepare request options
     const config: AxiosRequestConfig = {
       method,
       url,
       headers: this.headers,
-      params,
+      params: safeParams,
       paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'brackets' })
     };
 
