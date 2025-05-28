@@ -4,6 +4,7 @@
  */
 
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import qs from 'qs';
 import {
   CreateTicketRequest,
   PaginatedTicketsResponse,
@@ -170,7 +171,8 @@ export class Desk365Client implements SupportApiInterface {
       method,
       url,
       headers: this.headers,
-      params
+      params,
+      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'brackets' })
     };
 
     // Add data for non-GET requests
@@ -192,7 +194,7 @@ export class Desk365Client implements SupportApiInterface {
         console.log('Final Request URL:', `${request.baseURL || ''}${request.url}`);
         return request;
       });
-      
+
       const response: AxiosResponse<T> = await axios(config);
       
       if (!this.verbose) {
