@@ -9,6 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Desk365Client = void 0;
 const axios_1 = __importDefault(require("axios"));
+const qs_1 = __importDefault(require("qs"));
 const types_1 = require("./types");
 /**
  * Desk365 API Client implementation
@@ -138,7 +139,8 @@ class Desk365Client {
             method,
             url,
             headers: this.headers,
-            params
+            params,
+            paramsSerializer: (params) => qs_1.default.stringify(params, { arrayFormat: 'brackets' })
         };
         // Add data for non-GET requests
         if (data && method !== 'GET') {
@@ -156,7 +158,11 @@ class Desk365Client {
         }
         try {
             axios_1.default.interceptors.request.use((request) => {
-                console.log('Final Request URL:', `${request.baseURL || ''}${request.url}`);
+                const fullUrl = `${request.baseURL || ''}${request.url}`;
+                const serializedParams = request.paramsSerializer && typeof request.paramsSerializer === 'function'
+                    ? request.paramsSerializer(request.params)
+                    : qs_1.default.stringify(request.params || {}, { arrayFormat: 'brackets' });
+                console.log('Final Request URL:', `${fullUrl}${serializedParams ? `?${serializedParams}` : ''}`);
                 return request;
             });
             const response = await (0, axios_1.default)(config);

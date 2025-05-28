@@ -191,7 +191,12 @@ export class Desk365Client implements SupportApiInterface {
 
     try {
       axios.interceptors.request.use((request) => {
-        console.log('Final Request URL:', `${request.baseURL || ''}${request.url}`);
+        const fullUrl = `${request.baseURL || ''}${request.url}`;
+        const serializedParams = request.paramsSerializer && typeof request.paramsSerializer === 'function'
+          ? request.paramsSerializer(request.params)
+          : qs.stringify(request.params || {}, { arrayFormat: 'brackets' });
+      
+        console.log('Final Request URL:', `${fullUrl}${serializedParams ? `?${serializedParams}` : ''}`);
         return request;
       });
 
