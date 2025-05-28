@@ -155,6 +155,10 @@ class Desk365Client {
                 console.log('Request data:', JSON.stringify(data, null, 2));
         }
         try {
+            axios_1.default.interceptors.request.use((request) => {
+                console.log('Final Request URL:', `${request.baseURL || ''}${request.url}`);
+                return request;
+            });
             const response = await (0, axios_1.default)(config);
             if (!this.verbose) {
                 console.log(`📥 Response: ${response.status} ${response.statusText}`);

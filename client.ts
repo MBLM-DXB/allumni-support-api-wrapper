@@ -188,6 +188,11 @@ export class Desk365Client implements SupportApiInterface {
     }
 
     try {
+      axios.interceptors.request.use((request) => {
+        console.log('Final Request URL:', `${request.baseURL || ''}${request.url}`);
+        return request;
+      });
+      
       const response: AxiosResponse<T> = await axios(config);
       
       if (!this.verbose) {
