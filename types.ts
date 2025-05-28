@@ -36,6 +36,7 @@ export interface Ticket {
   assignedTo?: string;
   createdAt: string;
   updatedAt: string;
+  attachments?: TicketAttachment[];
 }
 
 /**
@@ -63,10 +64,10 @@ export interface TicketMessage {
  * Ticket attachment
  */
 export interface TicketAttachment {
-  id: string;
   fileName: string;
   fileSize: number;
-  contentType: string;
+  fileType: string;
+  createdOn: string;
   url: string;
 }
 

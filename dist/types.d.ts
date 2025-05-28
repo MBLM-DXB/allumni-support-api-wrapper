@@ -33,6 +33,7 @@ export interface Ticket {
     assignedTo?: string;
     createdAt: string;
     updatedAt: string;
+    attachments?: TicketAttachment[];
 }
 /**
  * Ticket details including conversation history
@@ -57,10 +58,10 @@ export interface TicketMessage {
  * Ticket attachment
  */
 export interface TicketAttachment {
-    id: string;
     fileName: string;
     fileSize: number;
-    contentType: string;
+    fileType: string;
+    createdOn: string;
     url: string;
 }
 /**

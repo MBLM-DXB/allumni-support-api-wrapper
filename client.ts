@@ -15,7 +15,8 @@ import {
   TicketPriority,
   TicketResponseRequest,
   UpdateTicketRequest,
-  TicketStatus
+  TicketStatus,
+  TicketAttachment
 } from './types';
 
 /**
@@ -463,7 +464,6 @@ export class Desk365Client implements SupportApiInterface {
     return {
       ...this.mapDeskTicketToTicket(response),
       conversation,
-      attachments: [] // You can implement attachment fetching if needed
     };
   }
 
@@ -1115,13 +1115,7 @@ export class Desk365Client implements SupportApiInterface {
       sender: deskConversation.createdBy || '',
       isStaff: deskConversation.senderType === 'agent',
       createdAt: deskConversation.createdOn,
-      attachments: (deskConversation.attachments || []).map((att: import('./types').Desk365Attachment) => ({
-        id: att.id,
-        fileName: att.fileName,
-        fileSize: att.fileSize,
-        contentType: att.contentType,
-        url: att.url
-      }))
+      attachments: (deskConversation.attachments || []).map(this.mapDeskAttachmentToTicketAttachment.bind(this))
     };
   }
 
@@ -1188,7 +1182,8 @@ export class Desk365Client implements SupportApiInterface {
         priority: TicketPriority.MEDIUM,
         userEmail: 'unknown@example.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        attachments: []
       };
     }
 
@@ -1201,7 +1196,8 @@ export class Desk365Client implements SupportApiInterface {
       userEmail: deskTicket.contact_email || deskTicket.email || 'unknown@example.com',
       assignedTo: deskTicket.assigned_to || deskTicket.assign_to,
       createdAt: deskTicket.created_on || new Date().toISOString(),
-      updatedAt: deskTicket.updated_on || new Date().toISOString()
+      updatedAt: deskTicket.updated_on || new Date().toISOString(),
+      attachments: (deskTicket.attachments || []).map(this.mapDeskAttachmentToTicketAttachment.bind(this))
     };
   }
 
@@ -1229,13 +1225,13 @@ export class Desk365Client implements SupportApiInterface {
    * @returns The mapped ticket attachment
    * @private
    */
-  private mapDeskAttachmentToTicketAttachment(deskAttachment: any): any {
+  private mapDeskAttachmentToTicketAttachment(deskAttachment: any): TicketAttachment {
     return {
-      id: deskAttachment.id,
-      fileName: deskAttachment.filename,
-      fileSize: deskAttachment.size,
-      contentType: deskAttachment.content_type,
-      url: deskAttachment.url
+      fileName: deskAttachment.file_name,
+      fileSize: deskAttachment.file_size,
+      fileType: deskAttachment.file_type,
+      createdOn: deskAttachment.created_on,
+      url: deskAttachment.attachment_url
     };
   }
 
