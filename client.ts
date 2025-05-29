@@ -1102,8 +1102,8 @@ export class Desk365Client implements SupportApiInterface {
       notifiedAgents: raw.notified_agents,
       body: raw.body,
       bodyText: raw.body_text,
-      attachmentsCount: raw.attachements_count,
-      attachments: (raw.attachements || []).map((att: any) => ({
+      attachmentsCount: raw.attachments_count,
+      attachments: (raw.attachments || []).map((att: any) => ({
         id: att.id,
         fileName: att.filename,
         fileSize: att.size,

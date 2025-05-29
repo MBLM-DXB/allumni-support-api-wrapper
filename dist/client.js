@@ -964,8 +964,8 @@ class Desk365Client {
             notifiedAgents: raw.notified_agents,
             body: raw.body,
             bodyText: raw.body_text,
-            attachmentsCount: raw.attachements_count,
-            attachments: (raw.attachements || []).map((att) => ({
+            attachmentsCount: raw.attachments_count,
+            attachments: (raw.attachments || []).map((att) => ({
                 id: att.id,
                 fileName: att.filename,
                 fileSize: att.size,
